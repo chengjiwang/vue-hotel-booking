@@ -1,0 +1,48 @@
+.bg-cover {
+  background-size: cover;
+  background-position: center;
+}
+.room {
+  .room-header {
+    height: 600px;
+  }
+  .room-title {
+    font-size: 36px;
+  }
+  .descriptionShort {
+    letter-spacing: 1.46px;
+    line-height: 31px;
+  }
+  
+  .description {
+    letter-spacing: 1.25px;
+    text-align: justify;
+    font-size: 14px;
+  }  
+}
+
+.check-status {
+  font-size: 14px;
+  letter-spacing: 1.46px;
+  margin-bottom: 0;
+}
+
+.check-time {
+  font-size: 21px;
+  letter-spacing: 2.19px;
+}
+
+.amenity {
+  background-color:#F0F0F0;
+  padding: 15px;
+  margin: 40px 0 70px 0;
+  display: flex;
+  align-items: center;
+  .amenity-icon {
+    width: 26px !important;
+    height: 26px !important;
+  }
+  .disable {
+    opacity: 0.3;
+  }
+}

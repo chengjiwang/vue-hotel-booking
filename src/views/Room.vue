@@ -12,7 +12,9 @@
           </div>
         </div>
       </header>
-      <main class="row mt-5">
+    </div>
+    <div class="container">
+      <main class="row my-5">
         <div class="col-sm-12 col-lg-6 text-left">
           <h1 class="room-title mb-4">{{ room.name }}</h1>
           <ul class="list-unstyled descriptionShort">
@@ -37,7 +39,45 @@
           </section>
           <Amenity :amenities="room.amenities" />
         </div>
-        <div class="col-lg-6">date</div>
+        <div class="col-sm-12 col-lg-6">
+          <h2 class="text-left mb-4">預約時段</h2>
+          <ValidationObserver v-slot="{ handleSubmit }">
+            <form @submit.prevent="handleSubmit(onSubmit)" class="reservation">
+              <ValidationProvider name="姓名" rules="required" v-slot="{ errors }" class="form-group">
+                <label for="name" class="required">姓名</label>
+                <input v-model="booking.name" id="name" type="text" class="form-control" placeholder="請輸入姓名">
+                <small class="form-text text-danger text-left">{{ errors[0] }}</small>
+              </ValidationProvider>
+              <ValidationProvider name="電話" rules="required" v-slot="{ errors }" class="form-group">
+                <label for="tel" class="required">電話</label>
+                <input v-model="booking.tel" id="tel" type="number" class="form-control" placeholder="請輸入電話">
+                <small class="form-text text-danger text-left">{{ errors[0] }}</small>
+              </ValidationProvider>
+              <ValidationProvider name="預約起迄日期" rules="required" v-slot="{ errors }" class="form-group">
+                <label for="date">預約起迄日期</label>
+                <VueHotelDatepicker
+                  @reset="resetDate"
+                  @confirm="updateDate"
+                  :disabledDates="disabledDate"
+                  :minDate="minDate"
+                  :maxDate="maxDate"
+                  format="YYYY-MM-DD"
+                  mobile="mobile"
+                  placeholder="選取預約日期"
+                  v-model="booking.date"
+                />
+                <small class="form-text text-danger text-left">{{ errors[0] }}</small>
+              </ValidationProvider>
+              <div class="text-right">
+                <button type="btn" class="btn btn-outline-secondary" @click.prevent="clearReservation">清除所有預約</button>
+                <button type="submit" class="btn btn-primary ml-3">預約</button>
+              </div>
+            </form>
+          </ValidationObserver>
+        </div>
+        <router-link :to="{ name: 'Home' }">
+          <button class="btn btn-outline-primary ml-3 mt-4">回首頁</button>
+        </router-link>
       </main>
     </div>
   </div>
@@ -45,11 +85,13 @@
 
 <script>
 import Amenity from '@/components/Amenity.vue';
+import VueHotelDatepicker from '@northwalker/vue-hotel-datepicker';
 
 export default {
   name: 'Room',
   components: {
     Amenity,
+    VueHotelDatepicker,
   },
   data() {
     return {
@@ -63,12 +105,22 @@ export default {
         checkInAndOut: {},
         imageUrl: [],
       },
+      minDate: '',
+      maxDate: '',
+      booking: {
+        name: '',
+        tel: '',
+        date: [],
+      },
+      disabledDate: [],
     };
   },
   created() {
-    console.log(this.$route.params.roomId);
-    this.roomId = this.$route.params.roomId;
-    this.getRoom();
+    const vm = this;
+    window.scrollTo(0, 0);
+    vm.roomId = vm.$route.params.roomId;
+    vm.getRoom();
+    vm.getMaxDate();
   },
   methods: {
     getRoom() {
@@ -76,9 +128,73 @@ export default {
       vm.isLoading = true;
       const url = `${process.env.VUE_APP_APIPATH}/room/${vm.roomId}`;
       vm.axios.get(url).then((res) => {
-        console.log(res.data);
         vm.room = res.data.room[0];
+        if (res.data.booking.length > 0) {
+          res.data.booking.forEach((item) => {
+            vm.disabledDate.push(item.date);
+          });
+        }
         vm.isLoading = false;
+      });
+    },
+    getMaxDate() {
+      const vm = this;
+      vm.minDate = vm.moment().format('YYYY-MM-DD');
+      vm.maxDate = vm.moment().add(90, 'days').format('YYYY-MM-DD');
+    },
+    updateDate(date) {
+      const vm = this;
+      const startDate = vm.moment(date.start);
+      const endDate = vm.moment(date.end);
+      const dates = [];
+      while (startDate.isBefore(endDate) || startDate.isSame(endDate)) {
+        dates.push(startDate.format('YYYY-MM-DD'));
+        startDate.add(1, 'days');
+      }
+      vm.booking.date = dates;
+    },
+    resetDate() {
+      this.booking.date = [];
+    },
+    onSubmit() {
+      const vm = this;
+      const url = `${process.env.VUE_APP_APIPATH}/room/${vm.roomId}`;
+      vm.axios.post(url, vm.booking).then((res) => {
+        if (res.data.success) {
+          vm.$swal.fire({
+            icon: 'success',
+            title: '預約成功',
+            confirmButtonText: '回首頁',
+          }).then((result) => {
+            if (result.value) {
+              this.$router.push({ name: 'Home' });
+            }
+          });
+        }
+      });
+    },
+    clearReservation() {
+      const vm = this;
+      const url = `${process.env.VUE_APP_APIPATH}/rooms`;
+      const Toast = vm.$swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        onOpen: (toast) => {
+          toast.addEventListener('mouseenter', vm.$swal.stopTimer);
+          toast.addEventListener('mouseleave', vm.$swal.resumeTimer);
+        },
+      });
+      vm.axios.delete(url).then((res) => {
+        vm.disabledDate = [];
+        if (res.data.success) {
+          Toast.fire({
+            icon: 'success',
+            title: '清除預約成功',
+          });
+        }
       });
     },
   },

@@ -46,3 +46,27 @@
     opacity: 0.3;
   }
 }
+
+.reservation {
+  .form-group {
+    display: block;
+  }
+  label {
+    display: block;
+    margin-bottom: 0.25em;
+    text-align: left;
+  }
+  .vhd-container {
+    width: 100%;
+    .vhd-input {
+      width: 100%;
+      height: calc(1.5em + 0.75rem + 2px);
+      padding: 0.375rem 0.75rem;
+      color: #495057;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+    }
+  }
+}

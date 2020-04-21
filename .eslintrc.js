@@ -15,6 +15,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'prefer-destructuring': ["error", {"object": true, "array": false}],
     'vue/no-unused-vars': 'off',
-    'max-len': ["error", { "code": 120 }]
+    'max-len': ["error", { "code": 120 }],
+    'linebreak-style': ["off", "windows"]
   },
 };

@@ -1,29 +1,9 @@
 # vue-hotel-booking
 
-## Project setup
-```
-npm install
-```
+使用 Vue 和 Bootstrap 4 製作旅館預約服務，功能包含顯示所有房型、查看單一房型、預約房型，清除所有預約。
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+Demo 連結：[Demo](https://chengjiwang.github.io/vue-hotel-booking/)
 
-### Compiles and minifies for production
-```
-npm run build
-```
+# Preview
 
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+![Image](https://raw.githubusercontent.com/chengjiwang/vue-hotel-booking/master/demoImage/hotel-booking.png)

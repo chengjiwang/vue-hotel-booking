@@ -19,6 +19,7 @@
     "vue": "^2.6.11",
     "vue-loading-overlay": "^3.3.2",
     "vue-router": "^3.1.5",
+    "vue-snotify": "^3.2.1",
     "vue-sweetalert2": "^3.0.3",
     "vuex": "^3.1.2"
   },

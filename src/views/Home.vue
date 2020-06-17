@@ -1,6 +1,5 @@
 <template>
   <div>
-    <Loading :active.sync="isLoading" />
     <header v-if="rooms.length" class="container-fluid header-bg"
       :style="{backgroundImage: `url(${rooms[4].imageUrl})`}">
       <div class="header">
@@ -39,6 +38,7 @@ import mailIcon from '@/assets/svg/icon_mail.svg';
 import homeIcon from '@/assets/svg/icon_home.svg';
 import fbIcon from '@/assets/svg/brand_facebook.svg';
 import igIcon from '@/assets/svg/brand_instagram.svg';
+import { mapState } from 'vuex';
 
 export default {
   name: 'Home',
@@ -52,8 +52,6 @@ export default {
   },
   data() {
     return {
-      rooms: [],
-      isLoading: false,
       icons: [
         {
           name: 'phoneIcon',
@@ -71,18 +69,11 @@ export default {
     };
   },
   created() {
-    this.getAllRooms();
+    window.scrollTo(0, 0);
+    this.$store.dispatch('getAllRooms');
   },
-  methods: {
-    getAllRooms() {
-      const vm = this;
-      const url = `${process.env.VUE_APP_APIPATH}/rooms`;
-      vm.isLoading = true;
-      vm.axios.get(url).then((res) => {
-        vm.rooms = res.data.items;
-        vm.isLoading = false;
-      });
-    },
+  computed: {
+    ...mapState(['rooms']),
   },
 };
 </script>

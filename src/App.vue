@@ -1,8 +1,19 @@
 <template>
   <div id="app">
-    <router-view/>
+    <Loading :active.sync="isLoading" />
+    <router-view />
   </div>
 </template>
+
+<script>
+import { mapState } from 'vuex';
+
+export default {
+  computed: {
+    ...mapState(['isLoading']),
+  },
+};
+</script>
 
 <style lang="scss">
 @import './assets/all.scss';

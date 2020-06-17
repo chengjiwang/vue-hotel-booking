@@ -1,7 +1,7 @@
 <template>
   <div>
-    <Loading :active.sync="isLoading" />
-    <div class="container-fluid room">
+    <vue-snotify/>
+    <div class="container-fluid room" v-if="room.imageUrl">
       <header class="row room-header">
         <div class="col-8 bg-cover room-bg"
           :style="{backgroundImage: `url(${room.imageUrl[0]})`}" />
@@ -13,7 +13,7 @@
         </div>
       </header>
     </div>
-    <div class="container">
+    <div class="container" v-if="room.name">
       <main class="row my-5">
         <div class="col-sm-12 col-lg-6 text-left">
           <h1 class="room-title mb-4">{{ room.name }}</h1>
@@ -86,25 +86,17 @@
 <script>
 import Amenity from '@/components/Amenity.vue';
 import VueHotelDatepicker from '@northwalker/vue-hotel-datepicker';
+import { mapState } from 'vuex';
 
 export default {
   name: 'Room',
+  props: ['roomId'],
   components: {
     Amenity,
     VueHotelDatepicker,
   },
   data() {
     return {
-      isLoading: false,
-      roomId: '',
-      room: {
-        amenities: {},
-        descriptionShort: {
-          Bed: [],
-        },
-        checkInAndOut: {},
-        imageUrl: [],
-      },
       minDate: '',
       maxDate: '',
       booking: {
@@ -112,30 +104,20 @@ export default {
         tel: '',
         date: [],
       },
-      disabledDate: [],
     };
   },
   created() {
     const vm = this;
     window.scrollTo(0, 0);
-    vm.roomId = vm.$route.params.roomId;
     vm.getRoom();
     vm.getMaxDate();
   },
+  computed: {
+    ...mapState(['room', 'disabledDate']),
+  },
   methods: {
     getRoom() {
-      const vm = this;
-      vm.isLoading = true;
-      const url = `${process.env.VUE_APP_APIPATH}/room/${vm.roomId}`;
-      vm.axios.get(url).then((res) => {
-        vm.room = res.data.room[0];
-        if (res.data.booking.length > 0) {
-          res.data.booking.forEach((item) => {
-            vm.disabledDate.push(item.date);
-          });
-        }
-        vm.isLoading = false;
-      });
+      this.$store.dispatch('getRoom', this.roomId);
     },
     getMaxDate() {
       const vm = this;
@@ -167,35 +149,14 @@ export default {
             confirmButtonText: '回首頁',
           }).then((result) => {
             if (result.value) {
-              this.$router.push({ name: 'Home' });
+              vm.$router.push({ name: 'Home' });
             }
           });
         }
       });
     },
     clearReservation() {
-      const vm = this;
-      const url = `${process.env.VUE_APP_APIPATH}/rooms`;
-      const Toast = vm.$swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        onOpen: (toast) => {
-          toast.addEventListener('mouseenter', vm.$swal.stopTimer);
-          toast.addEventListener('mouseleave', vm.$swal.resumeTimer);
-        },
-      });
-      vm.axios.delete(url).then((res) => {
-        vm.disabledDate = [];
-        if (res.data.success) {
-          Toast.fire({
-            icon: 'success',
-            title: '清除預約成功',
-          });
-        }
-      });
+      this.$store.dispatch('clearReservation', { vm: this });
     },
   },
 };
